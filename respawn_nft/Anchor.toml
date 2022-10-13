@@ -1,0 +1,15 @@
+[features]
+seeds = false
+skip-lint = false
+[programs.mainnet]
+respawn_nft = "Dou1Phg8n1T1UUGV67ba9ZPS17urgtZHZ9UYGmpwv5Mu"
+
+[registry]
+url = "https://api.apr.dev"
+
+[provider]
+cluster = "https://quiet-muddy-log.solana-mainnet.quiknode.pro/4fffdad3de6974646ada97e9a6941f6aa3c5fd8e/"
+wallet = "/Users/drkrueger/.config/solana/programs/rps.json"
+
+[scripts]
+test = "yarn run ts-mocha -t 1000000 ./src/**/*.spec.ts"

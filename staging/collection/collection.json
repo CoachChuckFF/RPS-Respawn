@@ -1,0 +1,36 @@
+{
+    "name": "Red Panda Squad",
+    "symbol": "REDPANDA",
+    "description": "10,000 hand-drawn, algorithmically generated, unique, cute red panda NFTs on Solana.",
+    "seller_fee_basis_points": 750,
+    "image": "collection.png",
+    "external_url": "https://www.redpandasquad.com/",
+    "attributes": [],
+    "properties": {
+        "files": [
+            {
+                "uri": "collection.png",
+                "type": "image/png"
+            }
+        ],
+        "category": "image",
+        "creators": [
+            {
+                "address": "Cm5u3C2UjGuBM9hghJnLtbikVbXtUsjB6NxV71qh6qLc",
+                "share": 5
+            },
+            {
+                "address": "CCoW7SiRuP336wRJv6UD4KSooUaL6Yux6tbQ6rdPF3Q2",
+                "share": 40
+            },
+            {
+                "address": "EYGggnZhpp8rKT1gzHQzH2m4pucN1XCJs76RdUP5EAzS",
+                "share": 40
+            },
+            {
+                "address": "AASpTB4NBVHDiS9M4wb2axFL5CVw11FUG89KDrvKLF66",
+                "share": 15
+            }
+        ]
+    }
+}

@@ -1,0 +1,38 @@
+{
+    "price": 0,
+    "number": 10000,
+    "gatekeeper": null,
+    "creators": [
+        {
+            "address": "Cm5u3C2UjGuBM9hghJnLtbikVbXtUsjB6NxV71qh6qLc",
+            "share": 5
+        },
+        {
+            "address": "CCoW7SiRuP336wRJv6UD4KSooUaL6Yux6tbQ6rdPF3Q2",
+            "share": 40
+        },
+        {
+            "address": "EYGggnZhpp8rKT1gzHQzH2m4pucN1XCJs76RdUP5EAzS",
+            "share": 40
+        },
+        {
+            "address": "AASpTB4NBVHDiS9M4wb2axFL5CVw11FUG89KDrvKLF66",
+            "share": 15
+        }
+    ],
+    "solTreasuryAccount": "Chrqtg8ifa1TY2TVd6tM7hcwqJSyqVa4516Xfcgypb8W",
+    "splTokenAccount": null,
+    "splToken": null,
+    "goLiveDate": "2025-01-02T01:00:00+00:00",
+    "endSettings": null,
+    "whitelistMintSettings": null,
+    "hiddenSettings": null,
+    "uploadMethod": "shdw",
+    "retainAuthority": true,
+    "isMutable": true,
+    "symbol": "REDPANDA",
+    "sellerFeeBasisPoints": 750,
+    "awsConfig": null,
+    "nftStorageAuthToken": null,
+    "shdwStorageAccount": "3Sods1fRNiG1GSvAjXMfrh99XLe8wVN3JtAr4qA56F7Q"
+}

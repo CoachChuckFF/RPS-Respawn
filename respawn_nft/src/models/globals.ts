@@ -1,0 +1,2 @@
+
+export const RESPAWN_POINT_SEED = "RESPAWN_POINT";
