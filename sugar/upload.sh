@@ -13,7 +13,7 @@ solana config set --url $RPC --keypair $KEYPAIR
 # Cost Per Mint 0.0119812
 
 
-sugar mint -r $RPC -k $KEYPAIR -n 1000
+sugar mint -r $RPC -k $KEYPAIR -n 4
 
 # while ! sugar mint -r $RPC -k $KEYPAIR -n 1000
 # do

@@ -445,6 +445,7 @@ interface BlacklistMapping {
     old: string;
     new?: string;
     to: string;
+    sent?: boolean;
 }
 
 // Get the blacklist Pandas
@@ -455,6 +456,16 @@ async function stepSeven() {
     blacklist.push({
         old: "CjkFgHJM4Gc33igrdssqvDfQL63NN33NDvDcEbsqN5Nd",
         to: "2xb1ZeULg784kkwvs3YtAJJUfipq8HDiAmk2k9hAGjjk",
+    });
+
+    // Test Ones
+    blacklist.push({
+        old: "AyESSL2TcnfoTBDjfgDyUUAAWVSnuD98xazxkMtgXPGa",
+        to: "TEST",
+    });
+    blacklist.push({
+        old: "9JPNEKztHw5JrzbfJXQhszACAmYvCuA9hTpU1GV55Jsu",
+        to: "TEST",
     });
 
     // Ggfssp7rcAbppMBGeTEgvMKjranvRTnL4UTrp6hnELbP -> 2xb1ZeULg784kkwvs3YtAJJUfipq8HDiAmk2k9hAGjjk
@@ -470,6 +481,7 @@ async function stepSeven() {
 
     const blacklistPandasOne = blacklistWalletOne.filter((value) => {
         if (
+            value.creators[0] &&
             value.creators[0].address.equals(
                 new PublicKey("4xESs1McQbwhXhWjpVBZ7Tb6gXNqH7grVbwTKZNjjk6V")
             )
@@ -499,15 +511,16 @@ async function stepSeven() {
         .nfts()
         .findAllByOwner({
             owner: new PublicKey(
-                "Ggfssp7rcAbppMBGeTEgvMKjranvRTnL4UTrp6hnELbP"
+                "9gFTByoawNgJFB1psDgN5WqyUebJacqeL8Avmr1GChY9"
             ),
         })
         .run();
 
     const blacklistPandasTwo = blacklistWalletTwo.filter((value) => {
         if (
+            value.creators[0] &&
             value.creators[0].address.equals(
-                new PublicKey("9gFTByoawNgJFB1psDgN5WqyUebJacqeL8Avmr1GChY9")
+                new PublicKey("4xESs1McQbwhXhWjpVBZ7Tb6gXNqH7grVbwTKZNjjk6V")
             )
         ) {
             return true;
@@ -572,6 +585,7 @@ interface OldNewMapping {
     newMint: string;
     blacklisted: boolean;
     name?: string;
+    error?: string;
 }
 // Map old mints to new mints
 async function stepEightPointTwo() {
@@ -590,29 +604,40 @@ async function stepEightPointTwo() {
         .run();
 
     for (const panda of nfts) {
-        console.log("Matching ", panda.name);
-        const nft = await metaplex
-            .nfts()
-            .findByMetadata({ metadata: panda.address })
-            .run();
-        const match = mintNameMap.find((value) => value.name === nft.name);
+        try {
+            const nft = await metaplex
+                .nfts()
+                .findByMetadata({ metadata: panda.address })
+                .run();
+            const match = mintNameMap.find((value) => value.name === nft.name);
 
-        if (match) {
-            const oldMint = match.mint;
-            const name = match.name;
-            const newMint = nft.mint.address.toString();
-            const blacklisted =
-                blacklist.find((value) => value.old === match.mint) !==
-                undefined;
+            if (match) {
+                const oldMint = match.mint;
+                const name = match.name;
+                const newMint = nft.mint.address.toString();
+                const blacklisted =
+                    blacklist.find((value) => value.old === match.mint) !==
+                    undefined;
 
+                console.log(`✅ Matched ${panda.name}`);
+                mapping.push({
+                    oldMint,
+                    newMint,
+                    name,
+                    blacklisted,
+                });
+            } else {
+                throw new Error(`No matching Panda for ${nft.name}`);
+            }
+        } catch (e) {
+            console.log(`❌ Getting ${panda.name}`);
             mapping.push({
-                oldMint,
-                newMint,
-                name,
-                blacklisted,
+                oldMint: "",
+                newMint: "",
+                name: panda.name,
+                blacklisted: true,
+                error: `${e}`,
             });
-        } else {
-            throw new Error(`No matching Panda for ${nft.name}`);
         }
     }
 
@@ -657,6 +682,80 @@ async function stepEightPointThreeFour() {
     }
 }
 
+async function stepEightPointFiveFive() {
+    const mapping = require("./old-new-mapping.json") as OldNewMapping[];
+    const blacklist = require("./blacklist.json") as BlacklistMapping[];
+
+    const searchableMapping = {};
+    mapping.map((value) => {
+        const blacklistItem = blacklist.find((item) => {
+            return item.old === value.oldMint;
+        });
+
+        if (blacklistItem !== undefined) {
+            console.log(`${value.name} - BLACKLISTED`);
+        }
+
+        searchableMapping[value.oldMint] = {
+            ...value,
+            blacklisted: blacklistItem !== undefined,
+        };
+    });
+
+    fs.writeFileSync(
+        "./searchable-mapping.json",
+        JSON.stringify(searchableMapping)
+    );
+}
+
+interface SearchableMapping {
+    [key: string]: {
+        oldMint: string;
+        newMint: string;
+        blacklisted: boolean;
+        name?: string;
+        error?: string;
+    };
+}
+async function stepNine() {
+    const mapping = require("./searchable-mapping.json") as SearchableMapping;
+    const blacklist = require("./blacklist.json") as BlacklistMapping[];
+
+    const newBlacklist: BlacklistMapping[] = [];
+
+    for (const blacklistItem of blacklist) {
+        let sent = true;
+
+        if (blacklistItem.to === "TEST") continue;
+        if (blacklistItem.sent) continue;
+
+        const panda = mapping[blacklistItem.old];
+
+        try {
+            await metaplex
+                .nfts()
+                .send({
+                    mintAddress: new PublicKey(panda.newMint),
+                    toOwner: new PublicKey(blacklistItem.to),
+                })
+                .run();
+            sent = true;
+            console.log(`✅ ${blacklistItem.old} -> ${blacklistItem.to}`);
+        } catch (e) {
+            sent = false;
+            console.log(`❌ ${blacklistItem.old} -> ${blacklistItem.to}`);
+        }
+
+        newBlacklist.push({
+            ...blacklistItem,
+            sent,
+        });
+    }
+
+    console.log("Writing Output");
+    fs.writeFileSync("./blacklist.json", JSON.stringify(newBlacklist));
+}
+
 // Comment Out the stage you are at
 // stepOne(); // Get all Mints from Collection
 // stepTwo(); // Download all Assets
@@ -667,6 +766,7 @@ async function stepEightPointThreeFour() {
 // stepEight(); // Map Old-Name
 // stepEightPointTwo(); // Map Old->New
 // stepEightPointThree();
-stepEightPointThreeFour();
-// stepNine(); // Send Blacklist Pandas
+// stepEightPointThreeFour();
+// stepEightPointFiveFive();
+stepNine(); // Send Blacklist Pandas
 // stepTen(); // Create Escrows
