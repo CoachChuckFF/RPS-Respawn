@@ -10,10 +10,17 @@ import {
     RPSAtrributes,
 } from "./metadata";
 import { Metaplex, keypairIdentity } from "@metaplex-foundation/js";
-import { createRespawnPoint } from "./Respawn/accounts/respawn-point";
+import {
+    createRespawnPoint,
+    fetchRespawnPointAccount,
+    fetchRespawnPointAccountFromGenesisMint,
+} from "./Respawn/accounts/respawn-point";
 import { getConnectedProgramFromNodeWallet } from "./Respawn/accounts/program";
 import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
-
+import { ACCOUNT_FETCH_STATE } from "./Respawn/models/fetch-response";
+const ASSOCIATED_TOKEN_PROGRAM_ID = new PublicKey(
+    "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+);
 const download = require("download");
 const fs = require("fs");
 
@@ -715,6 +722,7 @@ interface SearchableMapping {
         blacklisted: boolean;
         name?: string;
         error?: string;
+        respawned?: boolean;
     };
 }
 async function stepNine() {
@@ -756,6 +764,96 @@ async function stepNine() {
     fs.writeFileSync("./blacklist.json", JSON.stringify(newBlacklist));
 }
 
+const sleep = (ms: number = 300) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(null);
+        }, ms);
+    });
+};
+
+const respawnPointMapping = {} as SearchableMapping;
+async function stepTen() {
+    const mapping = require("./searchable-mapping.json") as SearchableMapping;
+
+    for (const key in mapping) {
+        const panda = mapping[key];
+
+        let respawned = false;
+
+        try {
+            if (panda.respawned) {
+                console.log(`🔵 Skipping... ${panda.name}`);
+                respawned = true;
+            } else {
+                try {
+                    const account =
+                        await fetchRespawnPointAccountFromGenesisMint(
+                            program,
+                            new PublicKey(panda.oldMint)
+                        );
+
+                    if (account.state === ACCOUNT_FETCH_STATE.LOADED) {
+                        console.log(`🎃 ${panda.name} respawned again!`);
+
+                        respawned = true;
+                    }
+                } catch (e) {}
+            }
+
+            if (!respawned) {
+                await createRespawnPoint(
+                    program,
+                    new PublicKey(panda.oldMint),
+                    new PublicKey(panda.newMint),
+                    new PublicKey(
+                        "FWwWkx3i1enW7h6fZgGMuzYaLua7FEcFjANJd39wPipq"
+                    ),
+                    true
+                );
+                console.log(`✅ ${panda.name} respawned`);
+                respawned = true;
+            }
+        } catch (e) {
+            console.log(`❌ ${panda.name} error`);
+            respawned = false;
+        }
+
+        respawnPointMapping[key] = {
+            ...panda,
+            respawned,
+        };
+    }
+}
+
+// async function stepEleven() {
+//     connection.getTokenAccountsByOwner(walletKeypair.publicKey, {
+//         programId: ASSOCIATED_TOKEN_PROGRAM_ID
+//     }).then((tokens)=>{
+//         tokens.value.forEach((token)=>{
+//             token.account.
+//         })
+//     })
+// }
+
+process.on("SIGINT", function () {
+    const mapping = require("./searchable-mapping.json") as SearchableMapping;
+
+    const respawnProgress = {
+        ...mapping,
+        ...respawnPointMapping,
+    };
+
+    console.log("Writing Output...");
+    fs.writeFileSync(
+        "./searchable-mapping.json",
+        JSON.stringify(respawnProgress)
+    );
+    console.log("Stopping...");
+
+    process.exit();
+});
+
 // Comment Out the stage you are at
 // stepOne(); // Get all Mints from Collection
 // stepTwo(); // Download all Assets
@@ -768,5 +866,5 @@ async function stepNine() {
 // stepEightPointThree();
 // stepEightPointThreeFour();
 // stepEightPointFiveFive();
-stepNine(); // Send Blacklist Pandas
-// stepTen(); // Create Escrows
+// stepNine(); // Send Blacklist Pandas
+stepTen(); // Create Escrows -> FWwWkx3i1enW7h6fZgGMuzYaLua7FEcFjANJd39wPipq
