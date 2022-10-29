@@ -3,8 +3,10 @@ The codebase for the Respawn of the RPS Collection on Solana
 
 ### Notes
 
+Old to New Panda Mint mapping can be found here: [Mapping](https://shdw-drive.genesysgo.net/14DyvG2Fw4AfH4qxF3hezHr2G6Ze1QFJb3topxp93EPx/panda-mappings.json)
+
 1. Mint/Burn Site is Live: https://shdw-drive.genesysgo.net/14DyvG2Fw4AfH4qxF3hezHr2G6Ze1QFJb3topxp93EPx/index.html
-2. Candy Machine Progress: https://www.solaneyes.com/address/4dpcr5cHxKqpZU8iRjrkLe6unXDamxv6ycm6vYLFfSoM?mainnet
+2. Candy Machine ID: 4dpcr5cHxKqpZU8iRjrkLe6unXDamxv6ycm6vYLFfSoM
 3. Github: https://github.com/CoachChuckFF/RPS-Respawn
 
 

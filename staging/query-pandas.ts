@@ -776,14 +776,22 @@ const respawnPointMapping = {} as SearchableMapping;
 async function stepTen() {
     const mapping = require("./searchable-mapping.json") as SearchableMapping;
 
+    let count = 0;
+
     for (const key in mapping) {
         const panda = mapping[key];
 
         let respawned = false;
+        let output = `[ ${count.toFixed(0).padStart(5, " ")}${(
+            (count / 10_000) *
+            100
+        )
+            .toFixed(1)
+            .padStart(5, " ")}% ] `;
 
         try {
             if (panda.respawned) {
-                console.log(`🔵 Skipping... ${panda.name}`);
+                output += `🔵 Skipping... ${panda.name}`;
                 respawned = true;
             } else {
                 try {
@@ -794,7 +802,7 @@ async function stepTen() {
                         );
 
                     if (account.state === ACCOUNT_FETCH_STATE.LOADED) {
-                        console.log(`🎃 ${panda.name} respawned again!`);
+                        output += `🎃 ${panda.name} respawned again!`;
 
                         respawned = true;
                     }
@@ -811,14 +819,16 @@ async function stepTen() {
                     ),
                     true
                 );
-                console.log(`✅ ${panda.name} respawned`);
+                output += `✅ ${panda.name} respawned`;
                 respawned = true;
             }
         } catch (e) {
-            console.log(`❌ ${panda.name} error`);
+            output += `❌ ${panda.name} error`;
             respawned = false;
         }
 
+        console.log(output);
+        count++;
         respawnPointMapping[key] = {
             ...panda,
             respawned,
