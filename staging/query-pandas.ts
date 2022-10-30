@@ -773,10 +773,44 @@ const sleep = (ms: number = 300) => {
 };
 
 const respawnPointMapping = {} as SearchableMapping;
-async function stepTen() {
+let count = 0;
+let success = 0;
+let skipped = 0;
+let again = 0;
+let fail = 0;
+async function finishRespawn() {
     const mapping = require("./searchable-mapping.json") as SearchableMapping;
 
-    let count = 0;
+    console.log(" PANDA REPORT ");
+    console.log(" ❌ ", fail);
+    console.log(" ✅ ", success);
+    console.log(" 🔵 ", skipped);
+    console.log(" 🎃 ", again);
+    console.log("");
+
+    const pandasRespawned = success + skipped + again;
+
+    console.log(`[ ${pandasRespawned.toFixed(0).padStart(5)} / 10,000 ]`);
+    console.log("");
+    console.log("");
+
+    const respawnProgress = {
+        ...mapping,
+        ...respawnPointMapping,
+    };
+
+    console.log("Writing Output...");
+    fs.writeFileSync(
+        "./searchable-mapping.json",
+        JSON.stringify(respawnProgress)
+    );
+    console.log("Stopping...");
+    await sleep(300);
+    process.exit();
+}
+
+async function stepTen() {
+    const mapping = require("./searchable-mapping.json") as SearchableMapping;
 
     for (const key in mapping) {
         const panda = mapping[key];
@@ -791,6 +825,7 @@ async function stepTen() {
 
         try {
             if (panda.respawned) {
+                skipped++;
                 output += `🔵 Skipping... ${panda.name}`;
                 respawned = true;
             } else {
@@ -802,6 +837,7 @@ async function stepTen() {
                         );
 
                     if (account.state === ACCOUNT_FETCH_STATE.LOADED) {
+                        again++;
                         output += `🎃 ${panda.name} respawned again!`;
 
                         respawned = true;
@@ -819,10 +855,12 @@ async function stepTen() {
                     ),
                     true
                 );
+                success++;
                 output += `✅ ${panda.name} respawned`;
                 respawned = true;
             }
         } catch (e) {
+            fail++;
             output += `❌ ${panda.name} error`;
             respawned = false;
         }
@@ -834,7 +872,13 @@ async function stepTen() {
             respawned,
         };
     }
+
+    finishRespawn();
 }
+
+process.on("SIGINT", function () {
+    finishRespawn();
+});
 
 // async function stepEleven() {
 //     connection.getTokenAccountsByOwner(walletKeypair.publicKey, {
@@ -845,24 +889,6 @@ async function stepTen() {
 //         })
 //     })
 // }
-
-process.on("SIGINT", function () {
-    const mapping = require("./searchable-mapping.json") as SearchableMapping;
-
-    const respawnProgress = {
-        ...mapping,
-        ...respawnPointMapping,
-    };
-
-    console.log("Writing Output...");
-    fs.writeFileSync(
-        "./searchable-mapping.json",
-        JSON.stringify(respawnProgress)
-    );
-    console.log("Stopping...");
-
-    process.exit();
-});
 
 // Comment Out the stage you are at
 // stepOne(); // Get all Mints from Collection
