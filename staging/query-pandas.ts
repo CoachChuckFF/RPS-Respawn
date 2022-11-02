@@ -751,7 +751,9 @@ async function stepNine() {
             console.log(`✅ ${blacklistItem.old} -> ${blacklistItem.to}`);
         } catch (e) {
             sent = false;
-            console.log(`❌ ${blacklistItem.old} -> ${blacklistItem.to}`);
+            console.log(
+                `❌ ${blacklistItem.old} -> ${blacklistItem.to} (${e})`
+            );
         }
 
         newBlacklist.push({
@@ -778,6 +780,8 @@ let success = 0;
 let skipped = 0;
 let again = 0;
 let fail = 0;
+let errorString = "---- Errors ----\n";
+
 async function finishRespawn() {
     const mapping = require("./searchable-mapping.json") as SearchableMapping;
 
@@ -793,6 +797,8 @@ async function finishRespawn() {
     console.log(`[ ${pandasRespawned.toFixed(0).padStart(5)} / 10,000 ]`);
     console.log("");
     console.log("");
+
+    console.log(errorString);
 
     const respawnProgress = {
         ...mapping,
@@ -861,7 +867,8 @@ async function stepTen() {
             }
         } catch (e) {
             fail++;
-            output += `❌ ${panda.name} error`;
+            errorString += `❌ ${panda.name} error ( ${e} )\n\n`;
+            output += `❌ ${panda.name} error ( ${e} )`;
             respawned = false;
         }
 
