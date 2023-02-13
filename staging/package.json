@@ -5,6 +5,7 @@
     "author": "Coach Chuck",
     "license": "MIT",
     "scripts": {
+        "count": "npx ts-node check-respawned.ts",
         "step": "npx ts-node query-pandas.ts",
         "stage": "./move-to-upload.sh",
         "upload": "./upload.sh",
