@@ -12,6 +12,16 @@ Old to New Panda Mint mapping can be found here: [Mapping](https://shdw-drive.ge
 
 There are only 9,999 Pandas now ( [Red Panda #2876](https://solscan.io/token/CjkFgHJM4Gc33igrdssqvDfQL63NN33NDvDcEbsqN5Nd) ) was burned on 8.10.22# RPS-Respawn
 
+## Check Amount Left To Respawn
+As of 2.13.23 there are **8001** Pandas that need to be respanwed.
+
+To check manually:
+- clone this package
+- `cd staging`
+- `yarn count`
+
+This will tell you the amount of Pandas still needed to respawn.
+
 ## Further Research
 8 Pandas refuse to respawn! Further research is required.
 
